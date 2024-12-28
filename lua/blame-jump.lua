@@ -36,14 +36,40 @@ local get_current_line_blame_commit = function()
     return
   end
 
-  return commit_hash
+  return { commit_hash = commit_hash, filepath = filepath }
 end
 
-get_current_line_blame_commit()
+M.show_commit = function()
+  local result = get_current_line_blame_commit()
 
-M.test = function()
-  get_current_line_blame_commit()
+  if result == nil then
+    return
+  end
+
+  local commit_hash = result.commit_hash
+  local filepath = result.filepath
+
+  local show_cmd = string.format("git show %s", commit_hash)
+  local show_output = vim.fn.systemlist(show_cmd)
+
+  if vim.v.shell_error ~= 0 then
+    vim.notify("Error fetching commit details", vim.log.levels.WARN)
+    return
+  end
+
+  -- TODO handle boundary (initial commit) functionality
+
+  local buffer = vim.api.nvim_create_buf(true, true)
+  local bufname = string.format("blame-jump://%s", commit_hash)
+  vim.bo[buffer].filetype = "git"
+  vim.api.nvim_buf_set_name(buffer, bufname)
+  vim.api.nvim_buf_set_lines(buffer, 0, -1, false, show_output)
+  -- Set the buffer to be wiped (removed) when hidden
+  vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = buffer })
+  vim.api.nvim_win_set_buf(0, buffer)
 end
+
+M.show_commit()
 
 M._contains_only_char = contains_only_char
 
