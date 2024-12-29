@@ -8,6 +8,21 @@ local contains_only_char = function(str, char)
   return str:match("^" .. char .. "+$") ~= nil
 end
 
+local add_to_tagstack = function(name)
+  local position = vim.fn.getcurpos()
+
+  local tag_item = {
+    tagname = name,
+    from = { position[1], position[2], position[3], position[4], position[5] },
+  }
+
+  local current_stack = vim.fn.gettagstack(0)
+
+  table.insert(current_stack.items, tag_item)
+
+  vim.fn.settagstack(0, { items = current_stack.items })
+end
+
 local get_current_line_blame_commit = function()
   local bufnr = vim.api.nvim_get_current_buf()
   local filepath = vim.api.nvim_buf_get_name(bufnr)
@@ -58,6 +73,10 @@ M.show_commit = function()
   end
 
   -- TODO handle boundary (initial commit) functionality
+
+  -- Add current position to tagstack so that user can navigate back from git
+  -- show buffer with <c-t>
+  add_to_tagstack("blame-jump.show_commit()")
 
   local buffer = vim.api.nvim_create_buf(true, true)
   local bufname = string.format("blame-jump://%s", commit_hash)
