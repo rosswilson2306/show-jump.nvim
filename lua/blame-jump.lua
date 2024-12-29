@@ -78,14 +78,14 @@ M.show_commit = function()
   -- show buffer with <c-t>
   add_to_tagstack("blame-jump.show_commit()")
 
-  local buffer = vim.api.nvim_create_buf(true, true)
-  local bufname = string.format("blame-jump://%s", commit_hash)
-  vim.bo[buffer].filetype = "git"
-  vim.api.nvim_buf_set_name(buffer, bufname)
-  vim.api.nvim_buf_set_lines(buffer, 0, -1, false, show_output)
+  local show_buf = vim.api.nvim_create_buf(true, true)
+  local show_bufname = string.format("blame-jump://%s", commit_hash)
+  vim.bo[show_buf].filetype = "git"
+  vim.api.nvim_buf_set_name(show_buf, show_bufname)
+  vim.api.nvim_buf_set_lines(show_buf, 0, -1, false, show_output)
   -- Set the buffer to be wiped (removed) when hidden
-  vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = buffer })
-  vim.api.nvim_win_set_buf(0, buffer)
+  vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = show_buf })
+  vim.api.nvim_win_set_buf(0, show_buf)
 end
 
 M.show_commit()
