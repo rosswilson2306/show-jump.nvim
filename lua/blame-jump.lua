@@ -90,8 +90,6 @@ M.show_commit = function()
   vim.api.nvim_win_set_buf(0, show_buf)
 end
 
-M.show_commit()
-
 M._contains_only_char = contains_only_char
 
 return M
