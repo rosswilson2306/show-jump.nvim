@@ -36,15 +36,15 @@ local get_current_line_blame_commit = function()
     return
   end
 
-  local blame_cmd = string.format("git blame -L %d,%d --porcelain %s", line, line, filepath)
-  local blame_output = vim.fn.systemlist(blame_cmd)
+  local blame_cmd = string.format("git blame -L %d,%d %s", line, line, filepath)
+  local blame_output = vim.fn.system(blame_cmd)
 
   if vim.v.shell_error ~= 0 or #blame_output == 0 then
     vim.notify("No blame information found", vim.log.levels.WARN)
     return
   end
 
-  local commit_hash = blame_output[1]:match("^(%x+)")
+  local commit_hash = blame_output:match("^(%x+)")
 
   if contains_only_char(commit_hash, "0") then
     vim.notify("Current line not commited", vim.log.levels.WARN)
@@ -76,7 +76,8 @@ M.show_commit = function()
 
   -- Add current position to tagstack so that user can navigate back from git
   -- show buffer with <c-t>
-  add_to_tagstack("blame-jump.show_commit()")
+  local tag_name = string.format("blame-jump:commit//%s", commit_hash)
+  add_to_tagstack(tag_name)
 
   local show_buf = vim.api.nvim_create_buf(true, true)
   local show_bufname = string.format("blame-jump://%s", commit_hash)
