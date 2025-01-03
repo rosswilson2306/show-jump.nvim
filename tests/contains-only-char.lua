@@ -1,4 +1,4 @@
-local contains_only_char = require("blame-jump")._contains_only_char
+local contains_only_char = require("show-jump")._contains_only_char
 
 local eq = assert.are.same
 
