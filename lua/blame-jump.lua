@@ -84,8 +84,8 @@ M.show_commit = function()
   vim.api.nvim_buf_set_name(show_buf, show_bufname)
 
   vim.bo[show_buf].filetype = "git"
-  -- Set the buffer to be wiped (removed) when hidden
-  vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = show_buf })
+  -- Set the buffer to be deleted when hidden
+  vim.api.nvim_set_option_value("bufhidden", "delete", { buf = show_buf })
 
   vim.api.nvim_buf_set_lines(show_buf, 0, -1, false, show_output)
   vim.api.nvim_win_set_buf(0, show_buf)
