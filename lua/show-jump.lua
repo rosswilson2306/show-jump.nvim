@@ -23,11 +23,11 @@ local add_to_tagstack = function(name)
   vim.fn.settagstack(0, { items = current_stack.items })
 end
 
-local get_current_line_blame_commit = function()
-  local bufnr = vim.api.nvim_get_current_buf()
-  local filepath = vim.api.nvim_buf_get_name(bufnr)
-  local line = vim.api.nvim_win_get_cursor(0)[1]
+local function escape_filepath(filepath)
+  return filepath:gsub("([%^%$%(%)%%%.%[%]%*%+%?])", "\\%1")
+end
 
+local get_current_line_blame_commit = function()
   local git_dir = vim.fn.system("git rev-parse --show-toplevel")
 
   -- Send warning and return if not in a git repo
@@ -36,7 +36,12 @@ local get_current_line_blame_commit = function()
     return
   end
 
-  local blame_cmd = string.format("git blame -L %d,%d %s", line, line, filepath)
+  local bufnr = vim.api.nvim_get_current_buf()
+  local filepath = vim.api.nvim_buf_get_name(bufnr)
+  local escaped_filepath = escape_filepath(filepath)
+  local line = vim.api.nvim_win_get_cursor(0)[1]
+
+  local blame_cmd = string.format("git blame -L %d,%d %s", line, line, escaped_filepath)
   local blame_output = vim.fn.system(blame_cmd)
 
   if vim.v.shell_error ~= 0 or #blame_output == 0 then
@@ -51,7 +56,7 @@ local get_current_line_blame_commit = function()
     return
   end
 
-  return { commit_hash = commit_hash, filepath = filepath }
+  return { commit_hash = commit_hash, filepath = escaped_filepath }
 end
 
 M.show_commit = function()
