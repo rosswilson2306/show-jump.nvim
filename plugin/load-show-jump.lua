@@ -1,3 +1,3 @@
-vim.keymap.set("n", "gc", function()
+vim.keymap.set("n", "gs", function()
   require("show-jump").show_commit()
 end)
